@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Porter's Five Forces — Modul Analisis v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  /* — Base — */
+  --white:      #FFFFFF;
+  --bg:         #F7F6F3;
+  --bg2:        #EFEFEC;
+  --surface:    #FFFFFF;
+  --border:     #E4E2DC;
+  --border2:    #D0CEC6;
+
+  /* — Text — */
+  --text:       #1C1C1A;
+  --text2:      #5A5854;
+  --text3:      #9A9890;
+
+  /* — Brand accents from Excel — */
+  --purple:     #3C3489;   --purple-bg: #EEEDFE;  --purple-mid: #7F77DD;
+  --teal:       #0F6E56;   --teal-bg:   #E1F5EE;  --teal-mid:   #1D9E75;
+  --coral:      #993C1D;   --coral-bg:  #FAECE7;  --coral-mid:  #D85A30;
+  --amber:      #854F0B;   --amber-bg:  #FAEEDA;  --amber-mid:  #BA7517;
+  --blue:       #185FA5;   --blue-bg:   #E6F1FB;  --blue-mid:   #378ADD;
+  --green:      #27500A;   --green-bg:  #EAF3DE;  --green-mid:  #639922;
+  --red:        #7D1E1E;   --red-bg:    #FCEBEB;  --red-mid:    #E24B4A;
+
+  /* — Typography — */
+  --font:       'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Lora', serif;
+
+  /* — Radius — */
+  --r:  6px;
+  --r2: 10px;
+  --r3: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 28px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.logo {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--purple);
+  white-space: nowrap;
+  padding: 15px 0;
+  margin-right: 28px;
+  letter-spacing: -0.01em;
+}
+.logo span {
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text3);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.nav { display: flex; gap: 0; flex: 1; overflow-x: auto; }
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn {
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 16px 14px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--text3);
+  transition: all .18s;
+  letter-spacing: .01em;
+}
+.nav-btn:hover { color: var(--text2); border-bottom-color: var(--border2); }
+.nav-btn.active { color: var(--purple); border-bottom-color: var(--purple); }
+.nav-num {
+  font-size: 10px;
+  font-weight: 600;
+  margin-right: 5px;
+  opacity: .45;
+  letter-spacing: .04em;
+}
+
+/* ── LAYOUT ── */
+.page { display: none; padding: 32px 28px; max-width: 980px; margin: 0 auto; }
+#page-cover { padding: 0; max-width: 100%; }
+.page.active { display: block; animation: fadeUp .22s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* ── TYPOGRAPHY ── */
+.page-title {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  color: var(--text);
+  margin-bottom: 3px;
+  line-height: 1.25;
+  letter-spacing: -.02em;
+}
+.page-sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; font-weight: 400; }
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin: 28px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r3);
+  padding: 20px 22px;
+  margin-bottom: 12px;
+}
+.grid2 { display: grid; grid-template-columns:1fr 1fr; gap:12px; }
+.grid3 { display: grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.grid5 { display: grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+
+/* ── FORM FIELDS ── */
+.field { margin-bottom: 0; }
+.field label { display:block; font-size:11px; font-weight:600; color:var(--text3); margin-bottom:5px; letter-spacing:.04em; text-transform:uppercase; }
+.field input, .field select {
+  width:100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 9px 11px;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+.field input:focus {
+  border-color: var(--purple-mid);
+  box-shadow: 0 0 0 3px rgba(127,119,221,.12);
+  background: var(--white);
+}
+.field-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:0; }
+
+/* ── FORCE BLOCKS ── */
+.force-block {
+  border-radius: var(--r3);
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  transition: box-shadow .2s;
+}
+.force-block:hover { box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.force-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 18px; cursor: pointer; user-select: none;
+  border-bottom: 1px solid transparent;
+  transition: background .15s;
+}
+.force-head:hover { background: var(--bg); }
+.force-accent { width: 4px; height: 32px; border-radius: 2px; flex-shrink: 0; }
+.force-name { font-size: 13px; font-weight: 600; flex: 1; color: var(--text); }
+.force-sub { font-size: 11px; color: var(--text3); font-weight: 400; }
+.force-pill {
+  font-size: 10px; font-weight: 600; padding: 3px 10px;
+  border-radius: 20px; letter-spacing: .04em;
+}
+.force-count { font-size: 11px; color: var(--text3); min-width: 32px; text-align:right; }
+.force-chev { font-size: 13px; color: var(--text3); transition: transform .2s; margin-left:4px; }
+.force-chev.open { transform: rotate(180deg); }
+.force-body { display: none; border-top: 1px solid var(--border); }
+.force-body.open { display: block; }
+
+/* ── Q TABLE ── */
+.q-table { width:100%; border-collapse:collapse; }
+.q-table th {
+  font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--text3); padding: 9px 14px; text-align: left;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.q-table td { padding: 10px 14px; vertical-align: middle; border-bottom: 1px solid var(--border); }
+.q-table tr:last-child td { border-bottom: none; }
+.q-table tbody tr:hover td { background: var(--bg); }
+.q-num { font-size: 11px; color: var(--text3); width: 28px; font-weight: 600; }
+.q-var { font-size: 11px; color: var(--text2); width: 130px; font-weight: 500; }
+.q-text { font-size: 13px; color: var(--text); }
+.q-contrib { width: 100px; text-align: center; }
+.q-ans { width: 130px; }
+.toggle-group { display:flex; gap:4px; justify-content:center; }
+.tbtn {
+  font-size: 11px; font-weight: 600; padding: 5px 13px;
+  border-radius: var(--r); border: 1px solid var(--border2);
+  cursor: pointer; background: var(--white); color: var(--text3);
+  font-family: var(--font); transition: all .15s; letter-spacing:.02em;
+}
+.tbtn:hover { border-color: var(--border2); background: var(--bg2); }
+.tbtn.ya.on  { background: var(--teal-bg);  border-color: var(--teal-mid);  color: var(--teal);  }
+.tbtn.tdk.on { background: var(--red-bg);   border-color: var(--red-mid);   color: var(--red);   }
+
+/* ── CONTRIB PILLS ── */
+.c-up   { font-size:10px; font-weight:600; color:var(--coral);  background:var(--coral-bg);  padding:2px 8px; border-radius:3px; display:inline-block; }
+.c-down { font-size:10px; font-weight:600; color:var(--green);  background:var(--green-bg);  padding:2px 8px; border-radius:3px; display:inline-block; }
+
+/* ── LEVEL BADGES ── */
+.lvl { font-size:11px; font-weight:700; padding:3px 10px; border-radius:4px; display:inline-block; letter-spacing:.04em; }
+.lvl-high   { background:var(--red-bg);    color:var(--red);    border:1px solid #F0BFC0; }
+.lvl-medium { background:var(--amber-bg);  color:var(--amber);  border:1px solid #E8CF90; }
+.lvl-low    { background:var(--green-bg);  color:var(--green);  border:1px solid #B4D890; }
+.lvl-na     { background:var(--bg2);       color:var(--text3);  border:1px solid var(--border); }
+
+/* ── BUTTONS ── */
+.btn {
+  font-family:var(--font); font-size:13px; font-weight:600;
+  padding:10px 20px; border-radius:var(--r2); border:none;
+  cursor:pointer; transition:all .18s; letter-spacing:.01em;
+}
+.btn-primary { background:var(--purple); color:#fff; box-shadow:0 1px 4px rgba(60,52,137,.25); }
+.btn-primary:hover { background:#4E44A8; box-shadow:0 3px 10px rgba(60,52,137,.3); }
+.btn-ghost { background:var(--white); color:var(--text2); border:1px solid var(--border2); }
+.btn-ghost:hover { background:var(--bg); color:var(--text); }
+.btn-row { display:flex; gap:8px; margin-top:22px; }
+
+/* ── SCORE CARDS ── */
+.score-card { border-radius:var(--r2); padding:14px 10px; text-align:center; border:1px solid var(--border); background:var(--white); }
+.score-pct { font-size:22px; font-weight:700; letter-spacing:-.02em; }
+.score-name { font-size:10px; color:var(--text3); margin-top:3px; line-height:1.4; font-weight:500; }
+.score-lvl { margin-top:7px; }
+
+/* ── SUMMARY ROW ── */
+.sum-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+.sum-item { background:var(--white); border:1px solid var(--border); border-radius:var(--r2); padding:16px; text-align:center; }
+.sum-val { font-size:24px; font-weight:700; color:var(--purple); letter-spacing:-.03em; }
+.sum-lbl { font-size:11px; color:var(--text3); margin-top:3px; font-weight:500; }
+
+/* ── STATUS BOX ── */
+.status-box { border-radius:var(--r2); padding:14px 18px; margin-bottom:16px; display:flex; align-items:center; gap:12px; border:1px solid; }
+.status-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.status-text { font-size:13px; font-weight:600; }
+
+/* ── RADAR ── */
+.radar-wrap {
+  background:var(--white); border-radius:var(--r3); border:1px solid var(--border);
+  display:flex; justify-content:center; align-items:center;
+  padding:24px; margin-bottom:14px; min-height:420px;
+}
+
+/* ── REC CARDS ── */
+.rec-card {
+  background:var(--white); border-radius:var(--r2);
+  border:1px solid var(--border); border-left-width:3px;
+  padding:16px 18px; margin-bottom:10px;
+}
+.rec-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.rec-force { font-size:13px; font-weight:700; }
+.rec-pct { font-size:11px; font-weight:600; margin-left:auto; }
+.rec-cond { font-size:12px; color:var(--text3); font-style:italic; margin-bottom:7px; }
+.rec-text { font-size:13px; color:var(--text2); line-height:1.7; }
+
+/* ── PANDUAN ── */
+.p-section { margin-bottom:24px; }
+.p-section h3 { font-size:15px; font-weight:700; color:var(--text); margin-bottom:7px; }
+.p-section p { font-size:13px; color:var(--text2); line-height:1.75; margin-bottom:7px; }
+.p-section .logika {
+  background:var(--purple-bg); border-left:3px solid var(--purple-mid);
+  padding:10px 14px; border-radius:0 var(--r) var(--r) 0;
+  font-size:12px; color:var(--purple); font-style:italic; margin-top:6px;
+}
+.p-table { width:100%; border-collapse:collapse; margin-top:10px; border-radius:var(--r2); overflow:hidden; border:1px solid var(--border); }
+.p-table th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text3); padding:9px 14px; background:var(--bg); border-bottom:1px solid var(--border); text-align:left; }
+.p-table td { padding:10px 14px; font-size:13px; border-bottom:1px solid var(--border); }
+.p-table tr:last-child td { border-bottom:none; }
+.pattern-row { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+.pattern-row:last-child { border-bottom:none; }
+.pat-tag { font-size:10px; font-weight:700; padding:3px 9px; border-radius:3px; white-space:nowrap; margin-top:2px; flex-shrink:0; letter-spacing:.03em; }
+.pat-desc { font-size:13px; color:var(--text2); line-height:1.6; }
+
+/* ── COVER ── */
+.cover-hero {
+  border-radius:var(--r3);
+  background: linear-gradient(135deg, #3C3489 0%, #5E56B8 50%, #7F77DD 100%);
+  padding:40px 44px; margin-bottom:20px; position:relative; overflow:hidden;
+  border:1px solid rgba(127,119,221,.3);
+}
+.cover-hero::after {
+  content:''; position:absolute; bottom:-60px; right:-60px; width:240px; height:240px;
+  border-radius:50%; background:rgba(255,255,255,.06);
+}
+.cover-hero::before {
+  content:''; position:absolute; top:-30px; right:80px; width:160px; height:160px;
+  border-radius:50%; background:rgba(255,255,255,.04);
+}
+.cover-hero h1 { font-family:var(--font-serif); font-size:34px; color:#fff; line-height:1.15; margin-bottom:7px; letter-spacing:-.02em; }
+.cover-hero h1 em { font-style:italic; opacity:.85; }
+.cover-hero p { font-size:13px; color:rgba(255,255,255,.7); font-weight:400; margin-bottom:18px; }
+.cover-meta { font-size:11px; color:rgba(255,255,255,.45); font-weight:500; letter-spacing:.04em; text-transform:uppercase; }
+.cover-tiles { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:18px; }
+.cover-tile {
+  background:var(--white); border-radius:var(--r2); padding:14px 12px;
+  border:1px solid var(--border); cursor:pointer; transition:all .2s;
+}
+.cover-tile:hover { border-color:var(--purple-mid); box-shadow:0 3px 12px rgba(60,52,137,.12); transform:translateY(-2px); }
+.ct-num { font-size:10px; font-weight:700; color:var(--text3); margin-bottom:5px; letter-spacing:.05em; }
+.ct-name { font-size:13px; font-weight:700; color:var(--text); margin-bottom:2px; }
+.ct-desc { font-size:11px; color:var(--text3); line-height:1.4; }
+.steps-list { }
+.step-item { display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+.step-item:last-child { border-bottom:none; }
+.step-n {
+  font-size:11px; font-weight:700; background:var(--purple-bg); color:var(--purple);
+  width:24px; height:24px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; flex-shrink:0; margin-top:1px;
+}
+.step-t { font-size:13px; color:var(--text2); line-height:1.55; }
+
+/* ── DATABASE ── */
+.db-wrap { background:var(--white); border:1px solid var(--border); border-radius:var(--r3); overflow:hidden; }
+.db-table { width:100%; border-collapse:collapse; }
+.db-table th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text3); padding:10px 11px; background:var(--bg); border-bottom:1px solid var(--border); text-align:center; white-space:nowrap; }
+.db-table th:nth-child(1),.db-table th:nth-child(2) { text-align:left; }
+.db-table td { padding:9px 11px; font-size:12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.db-table td:nth-child(3),.db-table td:nth-child(4),.db-table td:nth-child(5),.db-table td:nth-child(6),.db-table td:nth-child(7) { text-align:center; }
+.db-table td:last-child { font-size:11px; color:var(--text3); }
+.db-table tbody tr:hover td { background:var(--bg); }
+.db-table tr:last-child td { border-bottom:none; }
+.db-no { font-size:11px; color:var(--text3); font-weight:600; }
+.db-ind { font-size:13px; font-weight:600; color:var(--text); }
+.db-search { padding:12px 16px; border-bottom:1px solid var(--border); background:var(--bg); }
+.db-search input { width:100%; background:var(--white); border:1px solid var(--border); border-radius:var(--r); padding:8px 12px; font-family:var(--font); font-size:13px; color:var(--text); outline:none; }
+.db-search input:focus { border-color:var(--purple-mid); }
+
+/* ── DIVIDER ── */
+.divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
+
+/* ── PRINT ── */
+@media print { .topbar,.btn-row { display:none !important; } .page { display:block !important; padding:20px; } body { background:white; } }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:680px){
+  .cover-tiles,.grid5,.sum-row { grid-template-columns:1fr 1fr; }
+  .field-row { grid-template-columns:1fr; }
+  .topbar,.page { padding-left:14px; padding-right:14px; }
+  .q-var { display:none; }
+  .cover-hero { padding:28px 24px; }
+  .cover-hero h1 { font-size:26px; }
+}
+</style>
+</head>
+<body>
+<!-- ── PASSWORD GATE ── -->
+<div id="pw-gate" style="position:fixed;inset:0;z-index:9999;background:#F7F6F3;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif">
+  <div style="background:#fff;border:1px solid #E4E2DC;border-radius:14px;padding:40px 44px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.08);text-align:center">
+    <div style="font-family:'Lora',serif;font-size:22px;color:#3C3489;margin-bottom:6px">Porter's Analysis</div>
+    <div style="font-size:11px;color:#9A9890;margin-bottom:28px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Piawai Bisnis · v2.0</div>
+    <div style="text-align:left;margin-bottom:16px">
+      <label style="display:block;font-size:11px;font-weight:600;color:#9A9890;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Password</label>
+      <input type="password" id="pw-inp" placeholder="Masukkan password..." style="width:100%;background:#F7F6F3;border:1px solid #E4E2DC;border-radius:6px;padding:10px 12px;font-size:14px;color:#1C1C1A;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')checkPw()">
+    </div>
+    <p id="pw-err" style="font-size:12px;color:#E24B4A;margin:0 0 12px;display:none">Password salah. Coba lagi.</p>
+    <button onclick="checkPw()" style="width:100%;background:#3C3489;color:#fff;font-size:13px;font-weight:600;padding:11px 20px;border-radius:10px;border:none;cursor:pointer;">Masuk →</button>
+  </div>
+</div>
+<script>
+(function(){
+  if(sessionStorage.getItem('pw_ok')==='1'){
+    document.getElementById('pw-gate').style.display='none';
+  }
+  function checkPw(){
+    var v=document.getElementById('pw-inp').value;
+    if(v==='piawaibisnis'){
+      sessionStorage.setItem('pw_ok','1');
+      document.getElementById('pw-gate').style.display='none';
+    } else {
+      document.getElementById('pw-err').style.display='block';
+      document.getElementById('pw-inp').value='';
+      document.getElementById('pw-inp').focus();
+    }
+  }
+  window.checkPw=checkPw;
+})();
+</script>
+
+
+<div class="topbar">
+  <div class="logo">Porter's Analysis <span>v2.0</span></div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="goTo('cover')"><span class="nav-num">00</span>Cover</button>
+    <button class="nav-btn" onclick="goTo('panduan')"><span class="nav-num">01</span>Panduan</button>
+    <button class="nav-btn" onclick="goTo('input')"><span class="nav-num">02</span>Input</button>
+    <button class="nav-btn" onclick="goTo('hasil')"><span class="nav-num">03</span>Hasil</button>
+    <button class="nav-btn" onclick="goTo('rekomendasi')"><span class="nav-num">04</span>Rekomendasi</button>
+    <button class="nav-btn" onclick="goTo('database')"><span class="nav-num">05</span>Database</button>
+  </nav>
+</div>
+
+<!-- ══════════════ COVER ══════════════ -->
+<div id="page-cover" class="page active" style="padding:0;max-width:100%">
+<div style="min-height:100vh;background:#F0F4FF;font-family:'Plus Jakarta Sans',sans-serif;display:flex;flex-direction:column">
+
+  <!-- NAVBAR -->
+  <div style="background:#fff;border-bottom:1px solid #E2E8F0;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+    <!-- Logo kiri -->
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;background:#2563EB;border-radius:8px;display:flex;align-items:center;justify-content:center">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2L17 6V14L10 18L3 14V6L10 2Z" stroke="white" stroke-width="1.8" fill="none"/>
+          <text x="10" y="14" text-anchor="middle" font-size="9" font-weight="900" fill="white" font-family="Arial">5</text>
+        </svg>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:#0F172A;letter-spacing:.02em">PORTER <span style="color:#2563EB">5 FORCES</span></div>
+        <div style="font-size:10px;color:#94A3B8;font-weight:500;letter-spacing:.04em;margin-top:-2px">by Piawai Bisnis</div>
+      </div>
+    </div>
+    <!-- Badge kanan -->
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:700;color:#2563EB;letter-spacing:.04em">v2.0</div>
+      <div style="background:#2563EB;border-radius:6px;padding:6px 16px;font-size:11px;font-weight:700;color:#fff;cursor:pointer" onclick="goTo('input')">Mulai Analisis</div>
+    </div>
+  </div>
+
+  <!-- HERO: 2 kolom -->
+  <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:1200px;margin:0 auto;width:100%;padding:60px 48px;align-items:center">
+
+    <!-- Kolom kiri: teks -->
+    <div style="padding-right:48px">
+      <!-- Piawai Bisnis identity badge -->
+      <div style="display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #E2E8F0;border-radius:30px;padding:6px 14px;margin-bottom:28px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+        <div style="width:20px;height:20px;background:#2563EB;border-radius:4px;display:flex;align-items:center;justify-content:center">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <rect x="1" y="1" width="4" height="4" rx="1" fill="white"/>
+            <rect x="7" y="1" width="4" height="4" rx="1" fill="white" opacity=".6"/>
+            <rect x="1" y="7" width="4" height="4" rx="1" fill="white" opacity=".6"/>
+            <rect x="7" y="7" width="4" height="4" rx="1" fill="white" opacity=".3"/>
+          </svg>
+        </div>
+        <span style="font-size:11px;font-weight:700;color:#374151;letter-spacing:.03em">Piawai Bisnis</span>
+        <span style="font-size:10px;color:#9CA3AF">·</span>
+        <span style="font-size:10px;font-weight:500;color:#6B7280">Modul Analisis Strategis</span>
+      </div>
+
+      <!-- Headline -->
+      <h1 style="font-size:clamp(32px,4vw,52px);font-weight:900;color:#0F172A;line-height:1.1;margin-bottom:12px;letter-spacing:-.02em">
+        Keputusan Bisnis<br>Lebih Tajam dengan<br>
+        <span style="color:#2563EB">Porter's 5 Forces.</span>
+      </h1>
+      <p style="font-size:16px;color:#64748B;line-height:1.7;margin-bottom:32px;max-width:440px">
+        Analisis posisi kompetitif industri Indonesia secara terstruktur, cepat, dan berbasis data — langsung dari browser Anda.
+      </p>
+
+      <!-- Feature pills -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px">
+        <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:#16A34A">Radar Chart Otomatis</div>
+        <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:#EA580C">Rekomendasi Strategis</div>
+        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:600;color:#2563EB">Database 20 Industri</div>
+      </div>
+
+      <!-- CTA -->
+      <div style="display:flex;gap:12px;align-items:center">
+        <button onclick="goTo('input')" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;background:#2563EB;color:#fff;border:none;border-radius:10px;padding:14px 32px;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,.35);letter-spacing:.01em">
+          Mulai Analisis
+        </button>
+        <button onclick="goTo('panduan')" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;background:#fff;color:#374151;border:1px solid #E2E8F0;border-radius:10px;padding:14px 24px;cursor:pointer">
+          Panduan Penggunaan
+        </button>
+      </div>
+
+      <!-- Stats row -->
+      <div style="display:flex;gap:28px;margin-top:40px;padding-top:32px;border-top:1px solid #E2E8F0">
+        <div><div style="font-size:22px;font-weight:800;color:#0F172A">5</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px">Forces Diukur</div></div>
+        <div><div style="font-size:22px;font-weight:800;color:#0F172A">30</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px">Indikator Aktif</div></div>
+        <div><div style="font-size:22px;font-weight:800;color:#0F172A">20</div><div style="font-size:11px;color:#94A3B8;font-weight:500;margin-top:2px">Industri Indonesia</div></div>
+      </div>
+    </div>
+
+    <!-- Kolom kanan: chart card -->
+    <div style="position:relative">
+      <!-- Dekorasi bg -->
+      <div style="position:absolute;top:-40px;right:-40px;width:280px;height:280px;background:#DBEAFE;border-radius:50%;opacity:.5;z-index:0"></div>
+      <div style="position:absolute;bottom:-20px;left:-20px;width:160px;height:160px;background:#E0E7FF;border-radius:50%;opacity:.4;z-index:0"></div>
+
+      <!-- Main chart card -->
+      <div style="background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(37,99,235,.12);padding:28px;position:relative;z-index:1">
+        <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:4px">Porter 5 Forces Analysis</div>
+        <div style="font-size:11px;color:#94A3B8;margin-bottom:20px">Sample — Industri Kuliner (F&amp;B)</div>
+
+        <!-- Pentagon radar SVG -->
+        <svg viewBox="0 0 340 300" width="100%" style="max-width:340px;display:block;margin:0 auto">
+          <defs>
+            <linearGradient id="rfill" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#2563EB" stop-opacity="0.1"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid pentagons cx=170,cy=150,R=110 -->
+          <polygon points="170,40 270,113 232,230 108,230 70,113" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+          <polygon points="170,62 248,121 216,214 124,214 92,121" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+          <polygon points="170,84 226,129 200,198 140,198 114,129" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+          <polygon points="170,106 204,137 184,182 156,182 136,137" fill="none" stroke="#E2E8F0" stroke-width="1"/>
+          <!-- Spokes -->
+          <line x1="170" y1="150" x2="170" y2="40" stroke="#E2E8F0" stroke-width="1.2"/>
+          <line x1="170" y1="150" x2="270" y2="113" stroke="#E2E8F0" stroke-width="1.2"/>
+          <line x1="170" y1="150" x2="232" y2="230" stroke="#E2E8F0" stroke-width="1.2"/>
+          <line x1="170" y1="150" x2="108" y2="230" stroke="#E2E8F0" stroke-width="1.2"/>
+          <line x1="170" y1="150" x2="70" y2="113" stroke="#E2E8F0" stroke-width="1.2"/>
+          <!-- Data polygon (90%,87%,91%,57%,73%) -->
+          <polygon points="170,51 261,118 225,222 122,222 88,119" fill="url(#rfill)" stroke="#2563EB" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- Dots -->
+          <circle cx="170" cy="51" r="5.5" fill="#EF4444" stroke="white" stroke-width="2"/>
+          <circle cx="261" cy="118" r="5.5" fill="#EF4444" stroke="white" stroke-width="2"/>
+          <circle cx="225" cy="222" r="5.5" fill="#EF4444" stroke="white" stroke-width="2"/>
+          <circle cx="122" cy="222" r="5.5" fill="#F59E0B" stroke="white" stroke-width="2"/>
+          <circle cx="88" cy="119" r="5.5" fill="#EF4444" stroke="white" stroke-width="2"/>
+          <!-- Labels -->
+          <text x="170" y="30" text-anchor="middle" font-size="9.5" font-weight="700" fill="#374151" font-family="Arial">Ancaman Pendatang</text>
+          <text x="290" y="110" font-size="9.5" font-weight="700" fill="#374151" font-family="Arial">Kekuatan</text>
+          <text x="290" y="122" font-size="9.5" font-weight="700" fill="#374151" font-family="Arial">Pembeli</text>
+          <text x="240" y="248" text-anchor="middle" font-size="9.5" font-weight="700" fill="#374151" font-family="Arial">Produk Pengganti</text>
+          <text x="95" y="248" text-anchor="middle" font-size="9.5" font-weight="700" fill="#374151" font-family="Arial">Kekuatan Pemasok</text>
+          <text x="14" y="110" font-size="9.5" font-weight="700" fill="#374151" font-family="Arial">Persaingan</text>
+          <text x="14" y="122" font-size="9.5" font-weight="700" fill="#374151" font-family="Arial">Industri</text>
+        </svg>
+
+        <!-- Level legend -->
+        <div style="display:flex;justify-content:center;gap:16px;margin-top:14px">
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#EF4444"></div><span style="font-size:10px;color:#64748B;font-weight:600">High</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#F59E0B"></div><span style="font-size:10px;color:#64748B;font-weight:600">Medium</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:50%;background:#10B981"></div><span style="font-size:10px;color:#64748B;font-weight:600">Low</span></div>
+        </div>
+      </div>
+
+      <!-- Mini card bawah -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;position:relative;z-index:1">
+        <div style="background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.07)">
+          <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:4px">Hasil Instan</div>
+          <div style="font-size:10px;color:#94A3B8;line-height:1.5">Skor &amp; radar otomatis setelah isi indikator</div>
+          <div style="display:flex;gap:4px;margin-top:8px">
+            <span style="background:#FEF2F2;color:#DC2626;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700">High</span>
+            <span style="background:#FFFBEB;color:#D97706;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700">Medium</span>
+            <span style="background:#F0FDF4;color:#16A34A;border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700">Low</span>
+          </div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.07)">
+          <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:4px">Rekomendasi</div>
+          <div style="font-size:10px;color:#94A3B8;line-height:1.5">Strategi posisi tawar spesifik per force</div>
+          <div style="margin-top:8px;font-size:10px;font-weight:600;color:#2563EB">20 Industri Indonesia</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER identity -->
+  <div style="background:#0F172A;padding:16px 48px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-size:11px;color:#475569;font-weight:500">
+      <span style="color:#94A3B8">Piawai Bisnis</span>
+      &nbsp;·&nbsp; Porter's 5 Forces Analysis v2.0
+      &nbsp;·&nbsp; Modul Analisis Kompetitif Industri Indonesia
+    </div>
+    <div style="font-size:10px;color:#334155;font-weight:600;letter-spacing:.05em">piawai-bisnis.myr.id</div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════ PANDUAN ══════════════ -->
+<div id="page-panduan" class="page">
+  <div class="page-title">Panduan Penggunaan</div>
+  <div class="page-sub">Memahami Porter's Five Forces dan cara membaca hasil analisis</div>
+
+  <div class="p-section">
+    <h3>Apa Itu Porter's Five Forces?</h3>
+    <p>Porter's Five Forces adalah kerangka analisis kompetitif yang dikembangkan oleh <strong>Michael E. Porter</strong> (Harvard Business School, 1979). Tujuannya: membantu bisnis memahami seberapa menarik sebuah industri dan di mana posisi tawar mereka di dalam ekosistem kompetitif tersebut.</p>
+    <p>Kerangka ini tidak mengukur kinerja internal bisnis Anda — melainkan mengukur <strong>tekanan eksternal</strong> yang mempengaruhi kemampuan Anda meraih dan mempertahankan profitabilitas.</p>
+  </div>
+
+  <div class="section-label">Lima Kekuatan yang Diukur</div>
+
+  <div class="p-section">
+    <h3>1. Ancaman Pendatang Baru <span style="font-weight:400;font-size:12px;color:var(--text3)">Threat of New Entrants</span></h3>
+    <p>Mengukur seberapa mudah pemain baru masuk ke industri Anda. Semakin mudah mereka masuk, semakin besar ancaman terhadap pangsa pasar dan margin Anda.</p>
+    <div class="logika">Logika: Jika industri mudah dimasuki, kompetisi akan terus bertambah dan margin akan tertekan secara alami.</div>
+  </div>
+  <div class="p-section">
+    <h3>2. Kekuatan Penawaran Pembeli <span style="font-weight:400;font-size:12px;color:var(--text3)">Bargaining Power of Buyers</span></h3>
+    <p>Mengukur seberapa besar kendali pelanggan terhadap harga dan syarat transaksi. Pembeli yang kuat dapat memaksa harga turun atau mengadu pemain satu dengan lainnya.</p>
+    <div class="logika">Logika: Jika pelanggan Anda besar, sedikit, dan mudah pindah ke kompetitor — mereka yang menentukan harga, bukan Anda.</div>
+  </div>
+  <div class="p-section">
+    <h3>3. Ancaman Produk Pengganti <span style="font-weight:400;font-size:12px;color:var(--text3)">Threat of Substitutes</span></h3>
+    <p>Mengukur risiko pelanggan beralih ke produk atau layanan lain yang memenuhi kebutuhan yang sama, meski tidak identik.</p>
+    <div class="logika">Logika: Jika substitusi mudah diakses dan lebih murah, batas atas harga Anda akan selalu tertahan.</div>
+  </div>
+  <div class="p-section">
+    <h3>4. Kekuatan Penawar Pemasok <span style="font-weight:400;font-size:12px;color:var(--text3)">Bargaining Power of Suppliers</span></h3>
+    <p>Mengukur seberapa besar kendali pemasok atas harga dan ketersediaan input yang Anda butuhkan.</p>
+    <div class="logika">Logika: Jika Anda bergantung pada satu atau sedikit pemasok dengan input yang tidak tergantikan — marjin Anda rentan.</div>
+  </div>
+  <div class="p-section">
+    <h3>5. Persaingan dalam Industri <span style="font-weight:400;font-size:12px;color:var(--text3)">Rivalry Among Existing Competitors</span></h3>
+    <p>Mengukur intensitas persaingan antar pemain yang sudah ada. Semakin banyak kompetitor dengan produk yang sulit dibedakan, semakin keras perang harga yang terjadi.</p>
+    <div class="logika">Logika: Industri dengan persaingan sengit mendorong margin ke titik paling tipis — yang bertahan adalah yang paling efisien atau terdiferensiasi.</div>
+  </div>
+
+  <div class="section-label">Cara Membaca Skor</div>
+  <table class="p-table">
+    <thead><tr><th>Level</th><th>Persentase</th><th>Artinya</th></tr></thead>
+    <tbody>
+      <tr><td><span class="lvl lvl-low">Low</span></td><td style="font-size:12px;font-weight:600">&lt; 40%</td><td style="color:var(--text2)">Kekuatan ini tidak terlalu mengancam — posisi Anda relatif aman</td></tr>
+      <tr><td><span class="lvl lvl-medium">Medium</span></td><td style="font-size:12px;font-weight:600">40–59%</td><td style="color:var(--text2)">Tekanan sedang — perlu dipantau dan dikelola secara aktif</td></tr>
+      <tr><td><span class="lvl lvl-high">High</span></td><td style="font-size:12px;font-weight:600">≥ 60%</td><td style="color:var(--text2)">Tekanan tinggi — butuh strategi mitigasi segera</td></tr>
+    </tbody>
+  </table>
+
+  <div class="section-label">Pola Kombinasi Force</div>
+  <div class="card" style="padding:14px 18px">
+    <div class="pattern-row"><div class="pat-tag" style="background:var(--red-bg);color:var(--red)">Buyers↑ + Subs↑</div><div class="pat-desc">Pelanggan punya banyak pilihan dan mudah pergi. Brand dan loyalitas adalah senjata utama.</div></div>
+    <div class="pattern-row"><div class="pat-tag" style="background:var(--amber-bg);color:var(--amber)">Suppliers↑ + Rivalry↑</div><div class="pat-desc">Margin terjepit dua arah — input mahal, harga jual tertekan. Integrasi vertikal jadi keharusan.</div></div>
+    <div class="pattern-row"><div class="pat-tag" style="background:var(--purple-bg);color:var(--purple)">Entrants↑ + Rivalry↑</div><div class="pat-desc">Industri terbuka dan sesak. Diferensiasi tajam atau dominasi segmen niche adalah jalan keluar.</div></div>
+    <div class="pattern-row"><div class="pat-tag" style="background:var(--green-bg);color:var(--green)">Semua Low</div><div class="pat-desc">Industri sangat menarik. Cari tahu moat yang melindungi industri ini dan jaga agar tetap ada.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════ INPUT ══════════════ -->
+<div id="page-input" class="page">
+  <div class="page-title">Input Asesmen</div>
+  <div class="page-sub">Isi identitas analisis lalu jawab setiap indikator sesuai kondisi industri</div>
+  <div class="card">
+    <div class="field-row">
+      <div class="field"><label>Nama Industri</label><input type="text" id="f-industri" placeholder="contoh: Kuliner"></div>
+      <div class="field"><label>Nama Bisnis</label><input type="text" id="f-bisnis" placeholder="contoh: Bangkok Martabak"></div>
+      <div class="field"><label>Tanggal Analisis</label><input type="date" id="f-tanggal"></div>
+    </div>
+  </div>
+  <div id="forces-input"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="clearSession();goTo('hasil')">Lihat Hasil &rarr;</button>
+    <span id="save-ind" style="font-size:11px;color:#1D9E75;font-weight:600;opacity:0.4;transition:opacity .5s;margin-left:8px">● Tersimpan</span>
+    <button class="btn btn-ghost" onclick="resetAll()">↺ Reset Semua</button>
+  </div>
+</div>
+
+<!-- ══════════════ HASIL ══════════════ -->
+<div id="page-hasil" class="page">
+  <div class="page-title">Hasil Asesmen</div>
+  <div id="h-meta" class="page-sub"></div>
+  <div id="h-status"></div>
+  <div class="sum-row" id="h-summary"></div>
+  <div class="radar-wrap"><div id="radar-notice" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#9A9890;font-size:13px;text-align:center;padding:40px">
+    <div style="font-size:32px"></div>
+    <div><strong>Belum ada data</strong></div>
+    <div>Isi jawaban di tab <strong>Input</strong> terlebih dahulu, lalu kembali ke tab ini.</div>
+  </div>
+  <canvas id="radarChart" style="width:100%;max-width:400px;height:400px"></canvas></div>
+  <div class="grid5" id="h-cards" style="margin-bottom:16px"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="goTo('rekomendasi')">Lihat Rekomendasi &rarr;</button>
+    <button class="btn btn-ghost" onclick="window.print()">Cetak / PDF</button>
+  </div>
+</div>
+
+<!-- ══════════════ REKOMENDASI ══════════════ -->
+<div id="page-rekomendasi" class="page">
+  <div class="page-title">Rekomendasi Posisi Tawar</div>
+  <div id="r-meta" class="page-sub"></div>
+  <div id="r-status"></div>
+  <div id="r-list"></div>
+</div>
+
+<!-- ══════════════ DATABASE ══════════════ -->
+<div id="page-database" class="page">
+  <div class="page-title">Database Industri Indonesia</div>
+  <div class="page-sub">Referensi kondisi 20 sektor industri — gunakan sebagai acuan saat mengisi Input</div>
+  <div class="db-wrap">
+    <div class="db-search"><input type="text" id="db-filter" placeholder="Cari industri..." oninput="filterDB()"></div>
+    <div style="overflow-x:auto"><table class="db-table" id="db-table"></table></div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const FORCES = [
+  { id:'entrants', label:'Ancaman Pendatang Baru', sub:'Threat of New Entrants',
+    c:'var(--teal)', cb:'var(--teal-bg)', cm:'var(--teal-mid)', cd:'var(--teal)',
+    vars:[
+      {n:'Loyalitas Pelanggan',   qs:[{t:'Pelanggan mudah beralih ke produk/merek lain (loyalitas rendah)',c:1}]},
+      {n:'Diferensiasi Produk',   qs:[{t:'Produk yang ditawarkan terbatas/sedikit variasi sehingga mudah ditiru',c:1}]},
+      {n:'Biaya Investasi',       qs:[{t:'Nilai investasi awal untuk masuk industri ini tergolong sedang atau rendah',c:1},{t:'Waktu pencapaian cash flow positif sangat lama (>10 tahun)',c:0}]},
+      {n:'Switching Cost',        qs:[{t:'Biaya beralih ke kompetitor (switching cost) rendah',c:1}]},
+      {n:'Akses Distribusi & BB', qs:[{t:'Bahan baku utama mudah didapatkan oleh siapapun',c:1},{t:'Membangun saluran distribusi membutuhkan biaya besar',c:0}]},
+      {n:'Kebijakan Pemerintah',  qs:[{t:'Belum ada kebijakan pemerintah yang menghambat masuknya pemain baru',c:1}]},
+    ],
+    recs:{High:{cond:'Hambatan masuk RENDAH — pendatang baru mudah masuk',rec:'Bangun switching cost, perkuat brand loyalty, kembangkan jaringan distribusi eksklusif, dan pertimbangkan strategi harga penetrasi untuk mengunci pelanggan.'},Medium:{cond:'Hambatan masuk MODERAT',rec:'Perkuat keunggulan kompetitif existing. Investasikan dalam paten, brand equity, dan network effects.'},Low:{cond:'Hambatan masuk TINGGI — posisi terlindungi',rec:'Manfaatkan posisi first-mover. Perluas pangsa pasar sebelum hambatan berubah.'}}
+  },
+  { id:'buyers', label:'Kekuatan Penawaran Pembeli', shortLabel:'Kekuatan Pembeli', sub:'Bargaining Power of Buyers',
+    c:'var(--coral)', cb:'var(--coral-bg)', cm:'var(--coral-mid)', cd:'var(--coral)',
+    vars:[
+      {n:'Konsentrasi Pembeli',   qs:[{t:'Pembeli tersebar merata — tidak terkonsentrasi pada satu pihak',c:1}]},
+      {n:'Kapasitas Pembelian',   qs:[{t:'Pembelian produk bukan pengeluaran yang besar bagi pembeli',c:1}]},
+      {n:'Diferensiasi Produk',   qs:[{t:'Produk yang dibeli adalah produk standar / tidak terdiferensiasi',c:1}]},
+      {n:'Switching Cost',        qs:[{t:'Biaya beralih ke pemasok / produk lain rendah',c:1}]},
+      {n:'Informasi Pembeli',     qs:[{t:'Pembeli memiliki informasi lengkap tentang produk, harga, dan kompetitor',c:1}]},
+    ],
+    recs:{High:{cond:'Pembeli memiliki DAYA TAWAR TINGGI',rec:'Tingkatkan diferensiasi produk, bangun program loyalitas, ciptakan switching cost, dan diversifikasi basis pelanggan.'},Medium:{cond:'Daya tawar pembeli MODERAT',rec:'Pertahankan diferensiasi. Monitor kepuasan pelanggan dan jaga hubungan jangka panjang.'},Low:{cond:'Daya tawar pembeli RENDAH — posisi kuat',rec:'Manfaatkan posisi ini untuk menetapkan harga premium. Pertahankan keunggulan melalui inovasi produk.'}}
+  },
+  { id:'substitutes', label:'Ancaman Produk Pengganti', shortLabel:'Ancaman Substitusi', sub:'Threat of Substitutes',
+    c:'var(--amber)', cb:'var(--amber-bg)', cm:'var(--amber-mid)', cd:'var(--amber)',
+    vars:[
+      {n:'Ketersediaan Substitusi',qs:[{t:'Terdapat produk atau jasa pengganti yang tersedia di pasar',c:1}]},
+      {n:'Kualitas Substitusi',    qs:[{t:'Layanan/kualitas produk pengganti sangat lengkap dan kompetitif',c:1}]},
+      {n:'Aksesibilitas',          qs:[{t:'Produk pengganti mudah didapatkan di pasaran',c:1}]},
+      {n:'Harga Relatif',          qs:[{t:'Produk pengganti memiliki harga yang LEBIH MAHAL dari produk utama',c:0}]},
+      {n:'Switching Cost',         qs:[{t:'Switching cost ke produk pengganti rendah',c:1}]},
+      {n:'Kemudahan Transisi',     qs:[{t:'Proses beralih ke produk pengganti sangat mudah dan cepat',c:1}]},
+      {n:'Loyalitas Pelanggan',    qs:[{t:'Loyalitas pelanggan terhadap produk utama rendah',c:1}]},
+    ],
+    recs:{High:{cond:'Ancaman substitusi TINGGI',rec:'Inovasi berkelanjutan pada nilai produk. Komunikasikan keunggulan yang tidak dimiliki substitusi. Pertimbangkan diversifikasi ke segmen substitusi.'},Medium:{cond:'Ancaman substitusi MODERAT',rec:'Pantau perkembangan produk pengganti. Perkuat ekosistem produk untuk menurunkan relevansinya.'},Low:{cond:'Ancaman substitusi RENDAH',rec:'Pertahankan posisi. Kembangkan fitur komplementer yang membuat substitusi semakin tidak relevan.'}}
+  },
+  { id:'suppliers', label:'Kekuatan Penawar Pemasok', shortLabel:'Kekuatan Pemasok', sub:'Bargaining Power of Suppliers',
+    c:'var(--blue)', cb:'var(--blue-bg)', cm:'var(--blue-mid)', cd:'var(--blue)',
+    vars:[
+      {n:'Dominasi Pemasok',         qs:[{t:'Pilihan pemasok terbatas — terdapat dominasi pemasok di industri ini',c:1}]},
+      {n:'Produk Pengganti Pemasok', qs:[{t:'Tidak terdapat bahan baku/input pengganti dari pemasok lain',c:1}]},
+      {n:'Posisi Industri',           qs:[{t:'Industri ini merupakan pelanggan penting bagi pemasok',c:0}]},
+      {n:'Kepentingan Input',         qs:[{t:'Produk pemasok merupakan komponen kritis bagi operasional bisnis',c:1}]},
+      {n:'Integrasi Maju',            qs:[{t:'Pemasok melakukan atau berpotensi melakukan integrasi maju',c:1}]},
+    ],
+    recs:{High:{cond:'Pemasok memiliki DAYA TAWAR TINGGI',rec:'Kembangkan multi-sourcing (minimal 2–3 pemasok per input kritis). Evaluasi integrasi vertikal ke hulu. Investasi R&D untuk bahan baku alternatif.'},Medium:{cond:'Daya tawar pemasok MODERAT',rec:'Negosiasikan kontrak jangka panjang. Bangun strategic partnership dengan pemasok kunci.'},Low:{cond:'Daya tawar pemasok RENDAH — posisi kuat',rec:'Negosiasikan harga menguntungkan, garansi pasokan, dan syarat pembayaran fleksibel.'}}
+  },
+  { id:'rivalry', label:'Persaingan dalam Industri', sub:'Rivalry Among Existing Competitors',
+    c:'var(--purple)', cb:'var(--purple-bg)', cm:'var(--purple-mid)', cd:'var(--purple)',
+    vars:[
+      {n:'Jumlah Pesaing',        qs:[{t:'Terdapat banyak kompetitor (lokal dan nasional) di pasar yang sama',c:1}]},
+      {n:'Pertumbuhan Industri',  qs:[{t:'Pertumbuhan industri sangat cepat (>10% per tahun)',c:0}]},
+      {n:'Diferensiasi Kompetitor',qs:[{t:'Kompetitor memiliki diferensiasi produk yang beragam',c:1}]},
+      {n:'Kapasitas Ekspansi',    qs:[{t:'Kompetitor mampu menambah kapasitas produksi dalam jumlah besar',c:1}]},
+      {n:'Hambatan Keluar',       qs:[{t:'Hambatan untuk keluar dari industri ini rendah (exit barrier rendah)',c:1}]},
+    ],
+    recs:{High:{cond:'Persaingan industri SANGAT KETAT',rec:'Fokus pada segmen niche. Bangun keunggulan biaya atau diferensiasi yang sulit ditiru. Pertimbangkan strategic alliance atau konsolidasi.'},Medium:{cond:'Persaingan industri MODERAT',rec:'Perkuat positioning merek. Investasi dalam efisiensi operasional dan diferensiasi produk.'},Low:{cond:'Persaingan industri RENDAH',rec:'Manfaatkan untuk ekspansi agresif. Perluas pangsa pasar sebelum industri semakin padat.'}}
+  },
+];
+
+const DB_DATA = [
+  ['Perbankan','Low','High','High','High','Medium','Terregulasi OJK/BI, barrier masuk sangat tinggi, dominasi 4 bank BUMN. Fintech jadi substitusi signifikan.'],
+  ['Fintech','High','High','High','Low','High','Regulasi OJK makin ketat. Persaingan tinggi antar dompet digital dan super-app. Switching cost rendah.'],
+  ['E-commerce','High','High','High','Low','High','Dikuasai beberapa pemain besar. Persaingan harga sangat ketat. Logistik jadi diferensiasi kunci.'],
+  ['FMCG','Medium','High','High','Medium','High','Kompetisi multinasional dan lokal. Brand loyalty kuat di segmen tertentu.'],
+  ['Kuliner / F&B','High','High','High','Medium','High','Sangat mudah dimasuki. Persaingan ketat. Switching cost nol. Substitusi sangat banyak.'],
+  ['Properti','Low','Low','Low','High','Medium','Modal besar, perizinan kompleks. Demand didorong populasi & urbanisasi. Sensitif suku bunga.'],
+  ['Kesehatan','Low','Medium','Medium','High','Medium','Terregulasi Kemenkes & BPJS. Tenaga kesehatan langka. Pertumbuhan pesat pasca-pandemi.'],
+  ['Pendidikan','Medium','Medium','High','Low','Medium','EdTech membuka persaingan baru. Regulasi Kemendikbud berpengaruh.'],
+  ['Telekomunikasi','Low','High','High','High','Low','Oligopoli 3 pemain besar. Infrastruktur padat modal. OTT jadi substitusi signifikan.'],
+  ['Transportasi','High','High','High','High','High','Disrupted oleh ride-hailing. Persaingan sangat ketat. Biaya BBM komponen utama.'],
+  ['Retail','Medium','High','High','Low','High','E-commerce mengancam. Margin tipis. Minimarket (Indomaret/Alfamart) mendominasi.'],
+  ['Manufaktur','Medium','Medium','High','High','High','Bersaing ketat dengan produk impor. Biaya energi dan tenaga kerja kritis.'],
+  ['Pertanian','High','High','Medium','Low','High','Sangat terfragmentasi. Harga dipengaruhi pasar global. Rantai pasok panjang menekan margin.'],
+  ['Logistik','High','High','High','High','High','Berkembang pesat didorong e-commerce. Fragmentasi tinggi. Infrastruktur hambatan luar Jawa.'],
+  ['Media','Medium','High','High','Low','High','Media konvensional terdisrupsi digital. Pendapatan iklan bergeser ke platform digital.'],
+  ['Otomotif','Low','Medium','High','High','High','Dikuasai merek Jepang. Komponen bergantung impor. EV mulai masuk.'],
+  ['Farmasi','Low','Low','Medium','High','High','Terregulasi BPOM ketat. BPJS mendorong penggunaan obat generik.'],
+  ['Pariwisata','High','High','High','Medium','High','Pulih pasca-pandemi. OTA mengubah perilaku booking. Kompetisi destinasi ASEAN.'],
+  ['Energi','Low','Medium','Medium','High','Low','Terregulasi SKK Migas & ESDM. Pertamina dominasi hilir. Transisi EBT agenda nasional.'],
+  ['Teknologi / SaaS','High','High','High','Low','High','Talent war tinggi. Switching cost rendah. Modal ventura aktif.'],
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const ANS = {};
+FORCES.forEach(f => f.vars.forEach((v,vi) => v.qs.forEach((_,qi) => { ANS[`${f.id}_${vi}_${qi}`] = null; })));
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+function goTo(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(b => { if(b.getAttribute('onclick').includes(`'${id}'`)) b.classList.add('active'); });
+  if(id==='hasil') buildHasil();
+  if(id==='rekomendasi') buildRek();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ─── BUILD INPUT ──────────────────────────────────────────────────────────────
+function buildInput() {
+  const cont = document.getElementById('forces-input');
+  let qn = 0;
+  cont.innerHTML = FORCES.map(f => {
+    const totalQ = Object.keys(ANS).filter(k => k.startsWith(f.id+'_')).length;
+    const rows = f.vars.map((v,vi) => v.qs.map((q,qi) => {
+      qn++;
+      const key = `${f.id}_${vi}_${qi}`;
+      const cv = q.c===1 ? '<span class="c-up">↑ naik</span>' : '<span class="c-down">↓ turun</span>';
+      return `<tr>
+        <td class="q-num">${qn}</td>
+        <td class="q-var">${v.n}</td>
+        <td class="q-text">${q.t}</td>
+        <td class="q-contrib">${cv}</td>
+        <td class="q-ans">
+          <div class="toggle-group">
+            <button class="tbtn ya" data-key="${key}" onclick="setAns('${key}',1,this)">Ya</button>
+            <button class="tbtn tdk" data-key="${key}" onclick="setAns('${key}',0,this)">Tidak</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('')).join('');
+
+    return `<div class="force-block" id="fb-${f.id}">
+      <div class="force-head" onclick="toggleF('${f.id}')">
+        <div class="force-accent" style="background:${f.c}"></div>
+        <div style="flex:1">
+          <div class="force-name">${f.label}</div>
+          <div class="force-sub">${f.sub}</div>
+        </div>
+        <span class="force-count" id="fprog-${f.id}">0/${totalQ}</span>
+        <span class="force-chev open" id="fchev-${f.id}">▾</span>
+      </div>
+      <div class="force-body open" id="fbody-${f.id}">
+        <table class="q-table">
+          <thead><tr>
+            <th style="width:28px">#</th>
+            <th style="width:128px">Variabel</th>
+            <th>Indikator</th>
+            <th style="width:80px;text-align:center">Kontribusi</th>
+            <th style="width:130px;text-align:center">Jawaban</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+  restoreAnswers();
+}
+
+function toggleF(id) {
+  document.getElementById('fbody-'+id).classList.toggle('open');
+  document.getElementById('fchev-'+id).classList.toggle('open');
+}
+
+function setAns(key, val, btn) {
+  ANS[key] = val;
+  btn.closest('.toggle-group').querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const fid = key.split('_')[0];
+  const done  = Object.keys(ANS).filter(k => k.startsWith(fid+'_') && ANS[k]!==null).length;
+  const total = Object.keys(ANS).filter(k => k.startsWith(fid+'_')).length;
+  const el = document.getElementById('fprog-'+fid);
+  if(el) el.textContent = `${done}/${total}`;
+  saveState();
+}
+
+function restoreAnswers() {
+  Object.entries(ANS).forEach(([key,val]) => {
+    if(val===null) return;
+    document.querySelectorAll(`[data-key="${key}"]`).forEach(btn => {
+      const isYa = btn.classList.contains('ya');
+      if((isYa && val===1) || (!isYa && val===0)) btn.classList.add('on');
+    });
+    const fid = key.split('_')[0];
+    const done  = Object.keys(ANS).filter(k => k.startsWith(fid+'_') && ANS[k]!==null).length;
+    const total = Object.keys(ANS).filter(k => k.startsWith(fid+'_')).length;
+    const el = document.getElementById('fprog-'+fid);
+    if(el) el.textContent = `${done}/${total}`;
+  });
+}
+
+function resetAll() {
+  if(!confirm('Reset semua jawaban dan data?')) return;
+  Object.keys(ANS).forEach(k => ANS[k]=null);
+  ['f-industri','f-bisnis'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('f-tanggal').value = new Date().toISOString().split('T')[0];
+  clearSession();
+  buildInput();
+}
+
+// ─── SCORING ─────────────────────────────────────────────────────────────────
+function calcF(f) {
+  let yes=0, tot=0;
+  f.vars.forEach((v,vi) => v.qs.forEach((q,qi) => {
+    const key=`${f.id}_${vi}_${qi}`;
+    if(ANS[key]!==null){ tot++; if((ANS[key]===1&&q.c===1)||(ANS[key]===0&&q.c===0)) yes++; }
+  }));
+  if(tot===0) return {pct:0,level:'N/A',yes,tot};
+  const pct=yes/tot;
+  return {pct, level: pct>=0.6?'High': pct>=0.4?'Medium':'Low', yes, tot};
+}
+
+function lc(l){ return l==='High'?'lvl-high': l==='Medium'?'lvl-medium': l==='Low'?'lvl-low':'lvl-na'; }
+
+function getMeta(){
+  return {
+    industri: document.getElementById('f-industri').value||'—',
+    bisnis:   document.getElementById('f-bisnis').value||'—',
+    tanggal:  document.getElementById('f-tanggal').value||'—'
+  };
+}
+
+// ─── HASIL ───────────────────────────────────────────────────────────────────
+let rchart=null;
+function buildHasil(){
+  const m=getMeta();
+  document.getElementById('h-meta').textContent=`${m.industri}  ·  ${m.bisnis}  ·  ${m.tanggal}`;
+  const res=FORCES.map(f=>({f,...calcF(f)}));
+  const allNA = res.every(r=>r.level==='N/A');
+  const hc=res.filter(r=>r.level==='High').length;
+  const avg=res.reduce((a,r)=>a+r.pct,0)/res.length;
+
+  let sbg,sc2,st;
+  if(hc>=4){sbg='var(--red-bg)';sc2='var(--red-mid)';st='Industri Sangat Kompetitif — Hampir semua kekuatan memberikan tekanan tinggi.';}
+  else if(hc>=3){sbg='var(--amber-bg)';sc2='var(--amber-mid)';st='Industri Kompetitif — Prioritaskan mitigasi pada force bertekanan tinggi.';}
+  else if(hc>=2){sbg='var(--teal-bg)';sc2='var(--teal-mid)';st='Industri Moderat — Tekanan masih terkendali, fokus ekspansi.';}
+  else{sbg='var(--green-bg)';sc2='var(--green-mid)';st='Industri Menarik — Kondisi kondusif untuk pertumbuhan jangka panjang.';}
+
+  document.getElementById('h-status').innerHTML=
+    `<div class="status-box" style="background:${sbg};border-color:${sc2}40">
+      <div class="status-dot" style="background:${sc2}"></div>
+      <div class="status-text" style="color:var(--text)">${st}</div>
+    </div>`;
+
+  document.getElementById('h-summary').innerHTML=
+    `<div class="sum-item"><div class="sum-val">${hc}</div><div class="sum-lbl">Forces Bertekanan High</div></div>
+     <div class="sum-item"><div class="sum-val">${Math.round(avg*100)}%</div><div class="sum-lbl">Rata-rata % Tekanan</div></div>
+     <div class="sum-item"><div class="sum-val" style="font-size:17px">${hc>=4?'Sangat Kompetitif':hc>=3?'Kompetitif':hc>=2?'Moderat':'Menarik'}</div><div class="sum-lbl">Status Industri</div></div>`;
+
+  document.getElementById('h-cards').innerHTML=res.map(r=>
+    `<div class="score-card" style="border-top:3px solid ${r.f.c}">
+      <div class="score-pct" style="color:${r.f.c}">${Math.round(r.pct*100)}%</div>
+      <div class="score-name">${r.f.shortLabel||r.f.label.split(' ').slice(0,2).join(' ')}</div>
+      <div class="score-lvl"><span class="lvl ${lc(r.level)}">${r.level}</span></div>
+    </div>`).join('');
+
+  if(rchart){rchart.destroy();rchart=null;}
+  if(allNA){
+    document.getElementById('radarChart').style.display='none';
+    document.getElementById('radar-notice').style.display='flex';
+    return;
+  }
+  document.getElementById('radarChart').style.display='block';
+  document.getElementById('radar-notice').style.display='none';
+  const ctx=document.getElementById('radarChart').getContext('2d');
+  rchart=new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:FORCES.map(f=>f.shortLabel||f.label),
+      datasets:[{
+        label:'Tekanan',
+        data:res.map(r=>Math.round(r.pct*100)),
+        backgroundColor:'rgba(60,52,137,0.10)',
+        borderColor:'#3C3489',
+        borderWidth:2.5,
+        pointBackgroundColor:res.map(r=>r.level==='High'?'#E24B4A':r.level==='Medium'?'#BA7517':'#639922'),
+        pointRadius:6,
+        pointHoverRadius:8,
+        pointBorderColor:'#fff',
+        pointBorderWidth:2,
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      scales:{r:{
+        min:0,max:100,
+        ticks:{stepSize:20,font:{size:10,family:'Plus Jakarta Sans'},color:'#9A9890',backdropColor:'transparent',callback:v=>v+'%'},
+        grid:{color:'rgba(0,0,0,.08)'},
+        pointLabels:{font:{size:12,family:'Plus Jakarta Sans',weight:'600'},color:'#1C1C1A',padding:16},
+        angleLines:{color:'rgba(0,0,0,.08)'},
+      }},
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+ctx.raw+'%'}}}
+    }
+  });
+}
+
+// ─── REKOMENDASI ─────────────────────────────────────────────────────────────
+function buildRek(){
+  const m=getMeta();
+  document.getElementById('r-meta').textContent=`${m.industri}  ·  ${m.bisnis}  ·  ${m.tanggal}`;
+  const res=FORCES.map(f=>({f,...calcF(f)}));
+  const hc=res.filter(r=>r.level==='High').length;
+
+  let sbg,sc2,st;
+  if(hc>=4){sbg='var(--red-bg)';sc2='var(--red-mid)';st='INDUSTRI SANGAT KOMPETITIF — Diperlukan keunggulan struktural yang kuat';}
+  else if(hc>=3){sbg='var(--amber-bg)';sc2='var(--amber-mid)';st='INDUSTRI KOMPETITIF — Prioritaskan mitigasi pada force tertinggi';}
+  else if(hc>=2){sbg='var(--teal-bg)';sc2='var(--teal-mid)';st='INDUSTRI MODERAT — Tekanan masih terkendali, fokus ekspansi';}
+  else{sbg='var(--green-bg)';sc2='var(--green-mid)';st='INDUSTRI MENARIK — Kondisi sangat kondusif untuk pertumbuhan';}
+
+  document.getElementById('r-status').innerHTML=
+    `<div class="status-box" style="background:${sbg};border-color:${sc2}50;margin-bottom:20px">
+      <div class="status-dot" style="background:${sc2}"></div>
+      <div class="status-text" style="color:var(--text);font-size:14px">${st}</div>
+    </div>`;
+
+  document.getElementById('r-list').innerHTML=res.map(r=>{
+    const rec=r.f.recs[r.level]||r.f.recs.Low;
+    return `<div class="rec-card" style="border-left-color:${r.f.c};background:${r.f.cb}">
+      <div class="rec-head">
+        <div class="rec-force" style="color:${r.f.c}">${r.f.label}</div>
+        <span class="lvl ${lc(r.level)}">${r.level}</span>
+        <span class="rec-pct" style="color:${r.f.c}">${Math.round(r.pct*100)}%</span>
+      </div>
+      <div class="rec-cond">${rec.cond}</div>
+      <div class="rec-text">${rec.rec}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── DATABASE ────────────────────────────────────────────────────────────────
+const lvBadge = l => ({
+  High:   '<span class="lvl lvl-high">High</span>',
+  Medium: '<span class="lvl lvl-medium">Medium</span>',
+  Low:    '<span class="lvl lvl-low">Low</span>',
+}[l]||l);
+
+function buildDB(){
+  const heads=['#','Industri','Pendatang Baru','Kekuatan Pembeli','Ancaman Substitusi','Kekuatan Pemasok','Persaingan','Konteks Industri'];
+  const thead='<thead><tr>'+heads.map(h=>`<th>${h}</th>`).join('')+'</tr></thead>';
+  const tbody='<tbody>'+DB_DATA.map((row,i)=>
+    `<tr>
+      <td class="db-no">${i+1}</td>
+      <td class="db-ind">${row[0]}</td>
+      ${[row[1],row[2],row[3],row[4],row[5]].map(l=>`<td>${lvBadge(l)}</td>`).join('')}
+      <td>${row[6]}</td>
+    </tr>`
+  ).join('')+'</tbody>';
+  document.getElementById('db-table').innerHTML=thead+tbody;
+}
+
+function filterDB(){
+  const q=document.getElementById('db-filter').value.toLowerCase();
+  document.querySelectorAll('#db-table tbody tr').forEach(tr=>{
+    tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+
+
+// ─── AUTO-SAVE SESSION ────────────────────────────────────────────────────────
+function saveState(){
+  try{
+    sessionStorage.setItem('porters_ans', JSON.stringify(ANS));
+    sessionStorage.setItem('porters_meta', JSON.stringify({
+      industri: document.getElementById('f-industri').value,
+      bisnis:   document.getElementById('f-bisnis').value,
+      tanggal:  document.getElementById('f-tanggal').value
+    }));
+    var ind = document.getElementById('save-ind');
+    if(ind){ ind.textContent = '● Tersimpan'; ind.style.opacity = '1'; setTimeout(function(){ ind.style.opacity = '0.4'; }, 1500); }
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    var ans = sessionStorage.getItem('porters_ans');
+    if(ans){
+      var saved = JSON.parse(ans);
+      Object.keys(saved).forEach(function(k){ if(k in ANS) ANS[k] = saved[k]; });
+    }
+    var meta = sessionStorage.getItem('porters_meta');
+    if(meta){
+      var m = JSON.parse(meta);
+      if(m.industri) document.getElementById('f-industri').value = m.industri;
+      if(m.bisnis)   document.getElementById('f-bisnis').value   = m.bisnis;
+      if(m.tanggal && m.tanggal.length) document.getElementById('f-tanggal').value = m.tanggal;
+    }
+  }catch(e){}
+}
+
+function clearSession(){
+  try{
+    sessionStorage.removeItem('porters_ans');
+    sessionStorage.removeItem('porters_meta');
+  }catch(e){}
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('f-tanggal').value=new Date().toISOString().split('T')[0];
+  loadState();
+  buildInput();
+  buildDB();
+  ['f-industri','f-bisnis','f-tanggal'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', saveState);
+    document.getElementById(id).addEventListener('change', saveState);
+  });
+});
+</script>
+</body>
+</html>
